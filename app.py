@@ -126,5 +126,5 @@ if uploaded_file is not None:
     try:
         os.unlink(temp_path)
     except:
-        pass   pass
-        pass
+        pass  
+
