@@ -54,7 +54,7 @@ def get_colors():
 colors = get_colors()
 
 # ৪. ভিডিও আপলোড অপশন
-uploaded_file = st.file_uploader("একটি ভিডিও ফাইল আপলোড করুন (MP4)", type=["mp4", "avi", "mov"])
+uploaded_file = st.file_uploader("Upload a video file (MP4)", type=["mp4", "avi", "mov"])
 
 if uploaded_file is not None:
     with tempfile.NamedTemporaryFile(delete=False, suffix='.mp4') as tfile:
