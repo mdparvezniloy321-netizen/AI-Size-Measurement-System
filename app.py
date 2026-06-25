@@ -5,18 +5,39 @@ import numpy as np
 import tempfile
 import os
 
-# অ্যাপের টাইটেল ও ইন্টারফেস
-st.title("🎯 AI Real-Time Size Measurement System")
-st.write("YOLOv8 এবং OpenCV ব্যবহার করে তৈরি একটি অবজেক্ট ডিটেকশন ও সাইজ মেজারমেন্ট অ্যাপ।")
+# ০. ব্রাউজার ট্যাবের টাইটেল ও আপনার ইউনিক আইকন সেট করা
+# আমরা 'page_icon' হিসেবে আপনার লোগো ফাইলটিকেই ব্যবহার করছি!
+st.set_page_config(
+    page_title="AI Size Measurement System",
+    page_icon="logo.png", # এটি ব্রাউজার ট্যাবে আপনার ইউনিক আইকন দেখাবে
+    layout="centered"
+)
 
-# ১. মডেল লোড করা
+# ১. লোগো ও ব্র্যান্ডিং সেকশন
+col1, col2 = st.columns([1, 4]) # লোগো এবং টাইটেল পাশাপাশি দেখানোর জন্য কলাম তৈরি
+
+with col1:
+    # গিটহাবে logo.png ফাইলটি থাকলে সেটি দেখাবে
+    if os.path.exists("logo.png"):
+        st.image("logo.png", width=90)
+    else:
+        # যদি কোনো কারণে লোগো ফাইল না পাওয়া যায়, তবে ব্যাকআপ হিসেবে একটি ইমোজি
+        st.write("🎯") 
+
+with col2:
+    st.title("AI Real-Time Size Measurement System")
+
+st.write("YOLOv8 এবং OpenCV ব্যবহার করে তৈরি একটি অবজেক্ট ডিটেকশন ও সাইজ মেজারমেন্ট অ্যাপ।")
+st.markdown("---")
+
+# ২. মডেল লোড করা
 @st.cache_resource
 def load_model():
     return YOLO("yolov8n.pt")
 
 model = load_model()
 
-# ২. ভিডিও আপলোড অপশন
+# ৩. ভিডিও আপলোড অপশন
 uploaded_file = st.file_uploader("একটি ভিডিও ফাইল আপলোড করুন (MP4)", type=["mp4", "avi", "mov"])
 
 if uploaded_file is not None:
@@ -27,13 +48,18 @@ if uploaded_file is not None:
     
     st.write("🔄 এআই মডেল আপনার ভিডিও প্রসেস করছে... নিচে লাইভ আউটপুট দেখুন:")
     
-    PPCM = 12 # Pixels Per Centimeter
+    # রেজাল্ট দেখানোর জন্য একটি খালি জায়গা রাখা
+    output_container = st.empty()
+    
+    PPCM = 12 # Pixels Per Centimeter (পরিমাপের জন্য এই মানটি ক্যালিব্রেট করা দরকার)
     
     # YOLO মডেলকে সরাসরি এই টেম্পোরারি ফাইলের পাথ (path) দেওয়া হলো
+    # stream=True ব্যবহার করায় এটি ফ্রেম বাই ফ্রেম রেজাল্ট দেবে
     results = model.predict(source=temp_path, stream=True)
     
     summary_results = []
     
+    # ভিডিওর ফ্রেম বাই ফ্রেম রেজাল্ট প্রসেস করা
     for r in results:
         boxes = r.boxes
         if len(boxes) > 0:
@@ -46,7 +72,7 @@ if uploaded_file is not None:
                 width_pixel = int(x2 - x1)
                 height_pixel = int(y2 - y1)
                 
-                # সেমিতে কনভার্ট
+                # সেমিতে কনভার্ট ( width_cm = width_pixel / PPCM )
                 width_cm = round(width_pixel / PPCM, 2)
                 height_cm = round(height_pixel / PPCM, 2)
                 
@@ -54,12 +80,17 @@ if uploaded_file is not None:
                 if info not in summary_results:
                     summary_results.append(info)
             
-            # প্রোটোটাইপের জন্য প্রথম সফল ডিটেকশন ফ্রেমের ডেটা নিয়ে আমরা ব্রেক করছি
-            break
+            # আমরা এখানে আর 'break' দিচ্ছি না, ফলে পুরো ভিডিওর সব অবজেক্ট ডিটেক্ট হবে
+            # তবে আউটপুট কন্টেইনার আপডেট করে সব রেজাল্ট দেখাবো
+            with output_container.container():
+                st.write("### 📊 পরিমাপের ফলাফল (সব অবজেক্ট):")
+                for res in summary_results:
+                    st.markdown(res)
             
     # স্ক্রিনে ফাইনাল আউটপুট দেখানো
     st.success("🎉 প্রসেসিং সম্পন্ন হয়েছে!")
-    st.write("### 📊 পরিমাপের ফলাফল:")
+    st.markdown("---")
+    st.write("### 📜 চূড়ান্ত পরিমাপের সামারি:")
     
     if len(summary_results) > 0:
         for res in summary_results:
@@ -71,4 +102,5 @@ if uploaded_file is not None:
     try:
         os.unlink(temp_path)
     except Exception as e:
+        passs e:
         pass
