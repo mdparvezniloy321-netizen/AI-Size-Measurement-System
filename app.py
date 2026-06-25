@@ -9,10 +9,9 @@ import os
 # আমরা 'page_icon' হিসেবে আপনার লোগো ফাইলটিকেই ব্যবহার করছি!
 st.set_page_config(
     page_title="AI Size Measurement System",
-    page_icon="logo.png", # এটি ব্রাউজার ট্যাবে আপনার ইউনিক আইকন দেখাবে
+    page_icon="🎯", # আমরা ব্রাউজার ট্যাবে ইমোজি রাখলাম যেন ক্র্যাশ না করে
     layout="centered"
 )
-
 # ১. লোগো ও ব্র্যান্ডিং সেকশন
 col1, col2 = st.columns([1, 4]) # লোগো এবং টাইটেল পাশাপাশি দেখানোর জন্য কলাম তৈরি
 
