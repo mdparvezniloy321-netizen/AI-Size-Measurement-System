@@ -3,6 +3,7 @@ import cv2
 from ultralytics import YOLO
 import numpy as np
 import tempfile
+import os
 
 # অ্যাপের টাইটেল ও ইন্টারফেস
 st.title("🎯 AI Real-Time Size Measurement System")
@@ -19,22 +20,17 @@ model = load_model()
 uploaded_file = st.file_uploader("একটি ভিডিও ফাইল আপলোড করুন (MP4)", type=["mp4", "avi", "mov"])
 
 if uploaded_file is not None:
-    # আপলোড করা ভিডিও সাময়িকভাবে সেভ করা
-    tfile = tempfile.NamedTemporaryFile(delete=False) 
-    tfile.write(uploaded_file.read())
-    
-    # OpenCV দিয়ে ভিডিও রিড করা
-    cap = cv2.VideoCapture(tfile.name)
+    # আপলোড করা ভিডিও ফাইলটিকে সাময়িকভাবে সেভ করার জন্য একটি নির্দিষ্ট নাম দেওয়া
+    with tempfile.NamedTemporaryFile(delete=False, suffix='.mp4') as tfile:
+        tfile.write(uploaded_file.read())
+        temp_path = tfile.name
     
     st.write("🔄 এআই মডেল আপনার ভিডিও প্রসেস করছে... নিচে লাইভ আউটপুট দেখুন:")
     
-    # রেজাল্ট দেখানোর জন্য একটি খালি জায়গা রাখা
-    output_text = st.empty()
-    
     PPCM = 12 # Pixels Per Centimeter
     
-    # ভিডিওর ফ্রেম বাই ফ্রেম প্রসেস করা
-    results = model.predict(source=tfile.name, stream=True)
+    # YOLO মডেলকে সরাসরি এই টেম্পোরারি ফাইলের পাথ (path) দেওয়া হলো
+    results = model.predict(source=temp_path, stream=True)
     
     summary_results = []
     
@@ -54,14 +50,25 @@ if uploaded_file is not None:
                 width_cm = round(width_pixel / PPCM, 2)
                 height_cm = round(height_pixel / PPCM, 2)
                 
-                info = f"📦 **অবজেক্ট:** {object_name.upper()} | **বাস্তব সাইজ:** {width_cm} cm (প্রস্থ) x {height_cm} cm (উচ্চতা)\n"
-                summary_results.append(info)
+                info = f"📦 **অবজেক্ট:** {object_name.upper()} | **বাস্তব সাইজ:** {width_cm} cm (প্রস্থ) x {height_cm} cm (উচ্চতা)"
+                if info not in summary_results:
+                    summary_results.append(info)
             
-            # আমরা এখানে জাস্ট কয়েকটা ফ্রেমের সামারি রেন্ডার করে দেখাবো
+            # প্রোটোটাইপের জন্য প্রথম সফল ডিটেকশন ফ্রেমের ডেটা নিয়ে আমরা ব্রেক করছি
             break
             
     # স্ক্রিনে ফাইনাল আউটপুট দেখানো
     st.success("🎉 প্রসেসিং সম্পন্ন হয়েছে!")
     st.write("### 📊 পরিমাপের ফলাফল:")
-    for res in summary_results:
-        st.markdown(res)
+    
+    if len(summary_results) > 0:
+        for res in summary_results:
+            st.markdown(res)
+    else:
+        st.warning("⚠️ ভিডিওতে কোনো নির্দিষ্ট অবজেক্ট খুঁজে পাওয়া যায়নি। অনুগ্রহ করে অন্য ভিডিও ট্রাই করুন।")
+        
+    # কাজ শেষে টেম্পোরারি ফাইলটি সার্ভার থেকে ডিলিট করা (Memory সাশ্রয়ের জন্য)
+    try:
+        os.unlink(temp_path)
+    except Exception as e:
+        pass
