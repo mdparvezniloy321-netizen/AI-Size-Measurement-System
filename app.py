@@ -5,26 +5,35 @@ import numpy as np
 import tempfile
 import os
 
-# ০. Page Config setup
+# ০. Page Config setup (ট্যাবে ইমোজি থাকবে যেন ক্র্যাশ না করে)
 st.set_page_config(
     page_title="AI Size Measurement System",
     page_icon="🎯",
     layout="centered"
 )
 
-# ১. Branding Section (Ekhane logo.png r dorkar nei, tai crash korbe na)
-st.title("🎯 AI Real-Time Size Measurement System")
-st.write("YOLOv8 and OpenCV use kore toiri kora Object Detection & Size Measurement App.")
+# ১. লোগো ও ব্র্যান্ডিং সেকশন (অনলাইন ইউআরএল ট্রিক)
+col1, col2 = st.columns([1, 4])
+
+with col1:
+    # এখানে সরাসরি ইন্টারনেটের লাইভ লিংক বসিয়ে দেওয়া হয়েছে, তাই ক্র্যাশ করবে না
+    logo_url = "https://images2.imgbox.com/39/3a/0b4ObyWd_o.png"
+    st.image(logo_url, width=90)
+
+with col2:
+    st.title("AI Real-Time Size Measurement System")
+
+st.write("YOLOv8 এবং OpenCV ব্যবহার করে তৈরি একটি অবজেক্ট ডিটেকশন ও সাইজ মেজারমেন্ট অ্যাপ।")
 st.markdown("---")
 
-# ২. Model Load kora
+# ২. মডেল লোড করা
 @st.cache_resource
 def load_model():
     return YOLO("yolov8n.pt")
 
 model = load_model()
 
-# ৩. Video Upload Option
+# ৩. ভিডিও আপলোড অপশন
 uploaded_file = st.file_uploader("Upload a video file (MP4)", type=["mp4", "avi", "mov"])
 
 if uploaded_file is not None:
