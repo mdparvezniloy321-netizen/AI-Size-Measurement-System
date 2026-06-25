@@ -23,7 +23,7 @@ with col1:
 with col2:
     st.title("AI Real-Time Size Measurement System")
 
-st.write("YOLOv8 এবং OpenCV ব্যবহার করে তৈরি একটি অবজেক্ট ডিটেকশন ও সাইজ মেজারমেন্ট অ্যাপ।")
+st.write(" Object detection and measuring by using YOLOv8 and OpenCV ")
 st.markdown("---")
 
 # ২. মডেল লোড করা
