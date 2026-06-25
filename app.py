@@ -29,18 +29,17 @@ with col2:
         </h1>
     """, unsafe_allow_html=True)
 
-# সাবটাইটেলের নির্দিষ্ট কি-ওয়ার্ডগুলো (YOLOv8, OpenCV, অবজেক্ট ডিটেকশন, সাইজ মেজারমেন্ট) কালারফুল হাইলাইট
+# আপনার দেওয়া নতুন ইংলিশ টেক্সটটি কালারফুল হাইলাইট করে সাবটাইটেল হিসেবে যুক্ত করা হলো
 st.markdown("""
-    <p style='font-size: 16px; color: #555555; line-height: 1.6;'>
-        <b style='color: #00A86B;'>YOLOv8</b> এবং <b style='color: #007ACC;'>OpenCV</b> ব্যবহার করে তৈরি একটি 
-        <span style='background-color: #FFEB3B; padding: 2px 6px; border-radius: 4px; color: #000000; font-weight: bold;'>রঙিন অবজেক্ট ডিটেকশন</span> 
-        ও <span style='background-color: #E1F5FE; padding: 2px 6px; border-radius: 4px; color: #0288D1; font-weight: bold;'>সাইজ মেজারমেন্ট</span> অ্যাপ।
+    <p style='font-size: 16px; color: #555555; line-height: 1.6; font-family: sans-serif; margin-top: 10px;'>
+        Object detection and size measuring by using 
+        <b style='color: #00A86B;'>YOLOv8</b> & <b style='color: #007ACC;'>OpenCV</b>.
     </p>
 """, unsafe_allow_html=True)
 
 st.markdown("---")
 
-# ২. মডেল লোড করা
+# ২. 모델 লোড করা
 @st.cache_resource
 def load_model():
     return YOLO("yolov8n.pt")
@@ -62,7 +61,7 @@ if uploaded_file is not None:
         tfile.write(uploaded_file.read())
         temp_path = tfile.name
     
-    st.write("🔄 এআই মডেল আপনার ভিডিও রঙিন ফ্রেমে প্রসেস করছে...")
+    st.write("🔄 AI Model is processing your video in colorful frames...")
     
     video_placeholder = st.empty()
     summary_placeholder = st.empty()
@@ -108,15 +107,15 @@ if uploaded_file is not None:
         video_placeholder.image(frame_rgb, channels="RGB", use_container_width=True)
         
         with summary_placeholder.container():
-            st.write("### 📊 লাইভ পরিমাপের তালিকা:")
+            st.write("### 📊 Live Measurement List:")
             for res in summary_results[-5:]:
                 st.markdown(res)
                 
     cap.release()
-    st.success("🎉 পুরো ভিডিওর কালারফুল প্রসেসিং সম্পন্ন হয়েছে!")
+    st.success("🎉 Colorful video processing completed!")
     
     st.markdown("---")
-    st.write("### 📜 চূড়ান্ত পরিমাপের সামারি:")
+    st.write("### 📜 Final Measurement Summary:")
     for res in summary_results:
         st.markdown(res)
         
@@ -124,4 +123,3 @@ if uploaded_file is not None:
         os.unlink(temp_path)
     except:
         pass
-
